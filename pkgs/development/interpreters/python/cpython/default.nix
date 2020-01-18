@@ -8,7 +8,8 @@
 , openssl
 , readline
 , sqlite
-, tcl ? null, tk ? null, tix ? null, libX11 ? null, xorgproto ? null, x11Support ? false
+, tcl ? null, tk ? null, tix ? null, libX11 ? null, xorgproto ? null
+, x11Support ? false, bluez ? null, bluetoothSupport ? false
 , zlib
 , self
 , CF, configd
@@ -34,6 +35,7 @@ assert x11Support -> tcl != null
                   && tk != null
                   && xorgproto != null
                   && libX11 != null;
+assert bluetoothSupport -> bluez != null;
 with stdenv.lib;
 
 let
@@ -60,7 +62,8 @@ let
   buildInputs = filter (p: p != null) [
     zlib bzip2 expat lzma libffi gdbm sqlite readline ncurses openssl ]
     ++ optionals x11Support [ tcl tk libX11 xorgproto ]
-    ++ optionals stdenv.isDarwin [ CF configd ];
+    ++ optionals stdenv.isDarwin [ CF configd ]
+    ++ optionals bluetoothSupport [ bluez bluez.dev ];
 
   hasDistutilsCxxPatch = !(stdenv.cc.isGNU or false);
 
