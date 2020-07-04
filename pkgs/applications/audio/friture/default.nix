@@ -1,38 +1,27 @@
-{ lib, fetchFromGitHub, python3Packages, wrapQtAppsHook }:
+{ lib, fetchurl, appimageTools }:
 
 let
-  py = python3Packages;
-in py.buildPythonApplication rec {
   pname = "friture";
-  version = "0.37";
+  version = "0.41";
+  name = "${pname}-${version}";
 
-  src = fetchFromGitHub {
-    owner = "tlecomte";
-    repo = pname;
-    rev = "v${version}";
-    sha256 = "1ivy5qfd90w1s1icsphvvdnnqz563v3fhg5pws2zn4483cgnzc2y";
+  src = fetchurl {
+    url = "https://github.com/tlecomte/friture/releases/download/v0.41/friture-0.41-20191208.AppImage";
+    sha256 = "1926mrqzdjhhpa9h8x5h5qs6z40qpl3xkrsspfcmipjhvz2xmln5";
   };
 
-  # module imports scipy.misc.factorial, but it has been removed since scipy
-  # 1.3.0; use scipy.special.factorial instead
-  patches = [ ./factorial.patch ];
+  appimageContents = appimageTools.extractType2 {
+    inherit name src;
+  };
 
-  nativeBuildInputs = (with py; [ numpy cython scipy ]) ++
-    [ wrapQtAppsHook ];
+in appimageTools.wrapType2 {
+  inherit name src;
 
-  propagatedBuildInputs = with py; [
-    sounddevice
-    pyopengl
-    docutils
-    numpy
-    pyqt5
-    appdirs
-    pyrr
-  ];
+  extraPkgs = pkgs: with pkgs; [ portaudio ];
 
-  postFixup = ''
-    wrapQtApp $out/bin/friture
-    wrapQtApp $out/bin/.friture-wrapped
+  extraInstallCommands = ''
+    mv $out/bin/${name} $out/bin/${pname}
+    install -m 444 -D ${appimageContents}/friture.desktop $out/share/applications/friture.desktop
   '';
 
   meta = with lib; {
