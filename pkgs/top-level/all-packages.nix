@@ -19378,6 +19378,8 @@ in
 
   confclerk = callPackage ../applications/misc/confclerk { };
 
+  colorpicker = callPackage ../applications/graphics/colorpicker { };
+
   copyq = libsForQt5.callPackage ../applications/misc/copyq { };
 
   coriander = callPackage ../applications/video/coriander {
